@@ -1,0 +1,41 @@
+server:
+  servlet:
+    context-path: /v1
+  port: 8080
+
+logging:
+  level:
+    com.blax: INFO
+
+spring:
+  jackson:
+    deserialization.FAIL_ON_UNKNOWN_PROPERTIES: false
+  kafka:
+    client-id: blax
+    bootstrap-servers: docker.vm:9092, docker.vm:9093, docker.vm:9094
+    producer:
+      value-serializer: com.blax.springbootkafka.producer.EventEnvelopeSerializer
+    consumer:
+      enable-auto-commit: false
+      value-deserializer: com.blax.springbootkafka.consumer.EventEnvelopeDeserializer
+      auto-offset-reset: latest
+      max-poll-records: 100
+      properties:
+        max.poll.interval.ms: 10000
+        #reconnect.backoff.ms default 50
+        reconnect.backoff.ms: 5000
+        # Specifies the timeout (in milliseconds) for client APIs. This configuration is used as the default
+        # timeout for all client operations that do not specify a timeout parameter. Default 1min 60000ms
+        # for our case mainly to fetch topic metadata (partitions) during environment event listener start up
+        # default value is 60000
+        default.api.timeout.ms: 15000
+    listener:
+      ack-mode: manual
+      missing-topics-fatal: false
+    properties:
+      security.protocol: PLAINTEXT
+      ssl.endpoint.identification.algorithm:
+
+com.blax:
+  kafka:
+    topic: blax
