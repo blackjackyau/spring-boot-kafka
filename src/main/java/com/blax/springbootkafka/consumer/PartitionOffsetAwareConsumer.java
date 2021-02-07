@@ -39,7 +39,8 @@ public class PartitionOffsetAwareConsumer implements ConsumerSeekAware, Consumer
     public void onPartitionsAssigned(Map<TopicPartition, Long> assignments, ConsumerSeekCallback callback) {
         LOGGER.info("onPartitionsAssigned [" + assignments.toString() + "]");
         assignments.forEach((topicPartition, offset) -> {
-            partitionOffsetStorage.update(topicPartition.partition(), offset);
+            // on partition assigned, should fully honour the partition offset
+            partitionOffsetStorage.reset(topicPartition.partition(), offset);
         });
     }
 
@@ -50,7 +51,7 @@ public class PartitionOffsetAwareConsumer implements ConsumerSeekAware, Consumer
 
     @Override
     @KafkaListener(topicPartitions = @org.springframework.kafka.annotation.TopicPartition(topic = "${com.blax.kafka.topic}",
-            partitions = "#{@finder.partitions('${com.blax.kafka.topic}')}"), concurrency = "3")
+            partitions = "#{@finder.partitions('${com.blax.kafka.topic}')}"), concurrency = "3", groupId = "blax")
     public void onMessage(ConsumerRecord<String, EventEnvelope> data, Consumer<?, ?> consumer) {
 
 //        //initialize partition offset map here due to the partitions and offset information only available after poll()

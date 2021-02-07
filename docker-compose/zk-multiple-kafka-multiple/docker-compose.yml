@@ -9,9 +9,9 @@ services:
     ports:
       - "2181:2181"
     environment:
-        ZOO_MY_ID: 1
-        ZOO_PORT: 2181
-        ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
+      ZOO_MY_ID: 1
+      ZOO_PORT: 2181
+      ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
     volumes:
       - zoo1-data-vol:/data
       - zoo1-datalog-vol:/datalog
@@ -22,9 +22,9 @@ services:
     ports:
       - "2182:2182"
     environment:
-        ZOO_MY_ID: 2
-        ZOO_PORT: 2182
-        ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
+      ZOO_MY_ID: 2
+      ZOO_PORT: 2182
+      ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
     volumes:
       - zoo2-data-vol:/data
       - zoo2-datalog-vol:/datalog
@@ -35,9 +35,9 @@ services:
     ports:
       - "2183:2183"
     environment:
-        ZOO_MY_ID: 3
-        ZOO_PORT: 2183
-        ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
+      ZOO_MY_ID: 3
+      ZOO_PORT: 2183
+      ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
     volumes:
       - zoo3-data-vol:/data
       - zoo3-datalog-vol:/datalog
@@ -46,9 +46,10 @@ services:
     image: confluentinc/cp-kafka:5.5.1
     hostname: kafka1
     ports:
-      - "9092:9092"
+      - "${KUBE_BOOTSTRAP_SERVER_IP}:${KUBE_BROKER_1_IP}"
+      - "${KUBE_BROKER_1_IP}:${KUBE_BROKER_1_IP}"
     environment:
-      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka1:19092,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka1:1${KUBE_BROKER_1_IP},LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:${KUBE_BROKER_1_IP}
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
       KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181,zoo2:2182,zoo3:2183"
@@ -66,9 +67,9 @@ services:
     image: confluentinc/cp-kafka:5.5.1
     hostname: kafka2
     ports:
-      - "9093:9093"
+      - "${KUBE_BROKER_2_IP}:${KUBE_BROKER_2_IP}"
     environment:
-      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka2:19093,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9093
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka2:1${KUBE_BROKER_2_IP},LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:${KUBE_BROKER_2_IP}
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
       KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181,zoo2:2182,zoo3:2183"
@@ -86,9 +87,9 @@ services:
     image: confluentinc/cp-kafka:5.5.1
     hostname: kafka3
     ports:
-      - "9094:9094"
+      - "${KUBE_BROKER_3_IP}:${KUBE_BROKER_3_IP}"
     environment:
-      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka3:19094,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9094
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka3:1${KUBE_BROKER_3_IP},LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:${KUBE_BROKER_3_IP}
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
       KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181,zoo2:2182,zoo3:2183"
@@ -107,7 +108,7 @@ services:
     ports:
       - "9000:9000"
     environment:
-      KAFKA_BROKERCONNECT: "kafka1:9092, kafka2:9093, kafka3:9094"
+      KAFKA_BROKERCONNECT: "kafka1:${KUBE_BROKER_1_IP}"
       JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
 
 volumes:

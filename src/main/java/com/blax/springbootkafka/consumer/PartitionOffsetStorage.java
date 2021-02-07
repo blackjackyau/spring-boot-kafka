@@ -14,6 +14,10 @@ public class PartitionOffsetStorage {
 
     private final Map<Integer, Long> partitionOffsetMap = new ConcurrentHashMap<>();
 
+    public void reset(int partition, long offset) {
+        partitionOffsetMap.put(partition, offset);
+    }
+
     public void update(int partition, long offset) {
         Long existingOffset = partitionOffsetMap.get(partition);
         if (existingOffset == null) {

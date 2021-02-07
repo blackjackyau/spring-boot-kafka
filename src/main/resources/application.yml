@@ -6,13 +6,15 @@ server:
 logging:
   level:
     com.blax: INFO
+    org.apache.kafka.clients.Metadata: DEBUG
+    org.springframework.kafka: DEBUG
 
 spring:
   jackson:
     deserialization.FAIL_ON_UNKNOWN_PROPERTIES: false
   kafka:
     client-id: blax
-    bootstrap-servers: docker.vm:9092, docker.vm:9093, docker.vm:9094
+    bootstrap-servers: docker.vm:9091
     producer:
       value-serializer: com.blax.springbootkafka.producer.EventEnvelopeSerializer
     consumer:
@@ -31,7 +33,7 @@ spring:
         default.api.timeout.ms: 15000
     listener:
       ack-mode: manual
-      missing-topics-fatal: false
+#      missing-topics-fatal: false
     properties:
       security.protocol: PLAINTEXT
       ssl.endpoint.identification.algorithm:
